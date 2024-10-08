@@ -1,45 +1,4 @@
-from os import system, sys, path
-
-class Memory(object):
-    def __init__(self, size: int):
-        self.memory: list = []
-        self.size = size
-        self.count = 0
-        for i in range(0, self.size):
-            self.memory.append('0000')
-
-    def getitem(self, address: int) -> str:
-        return self.memory[address]
-
-    def setitem(self, address: int, value: str) -> None:
-        self.memory[address] = value
-
-    def __str__(self) -> str:
-        return str(self.memory)
-
-
-def dump(mem: list) -> None:
-    dcount: int = 1
-    [print(f"{i:8}", end="") for i in range(0, 10)]
-    print(f"\n00", end=" ")
-    for i in range(0, len(mem)):
-        if dcount % 10 == 0 and dcount < 100:
-            print(f"+{mem[i]:7}")
-            print(f"{(i + 1)}", end=" ")
-        else:
-            print(f"+{mem[i]:7}", end="")
-        dcount += 1
-    print()
-    print('-' * 100)
-
-
-def loader(filename: str) -> list:
-    program: list = []
-    if path.exists(filename):
-        with open(filename) as file:
-            program = file.readlines()
-    return program
-
+from os import system, path
 
 class Simpletron:
     def __init__(self, memory_size=100) -> None:
@@ -69,9 +28,11 @@ class Simpletron:
             self.operationCode = int(format_word) // 100
             self.operand = int(format_word) % 100
             
+            # Execute operations based on the operation code
             if self.operationCode == 10:  # Read input
                 try:
-                    self.memory[self.operand] = self.format_number(int(input(f"> ")))
+                    # No individual input needed here, as batch inputs were collected
+                    print(f"Reading value from memory location {self.operand} -> {self.memory[self.operand]}")
                 except Exception as err:
                     print(f"Invalid Input: {err}")
                     exit()
@@ -111,6 +72,9 @@ class Simpletron:
                 print(f"Error: Invalid opcode {self.operationCode}")
                 self.running = False
 
+            self.dump()  # Display memory after each operation
+            input("\n\nPress any key to continue...")  # Wait for user input before next operation
+
             self.programCounter += 1  # Increment the program counter
 
     def format_number(self, number) -> str:
@@ -135,6 +99,28 @@ class Simpletron:
                 print(f"\n{'00' if k == 0 else k:>6}", end="  ")
             print(f"{self.memory[k]:>6}", end="  ")
 
+def loader(filename: str) -> list:
+    program: list = []
+    if path.exists(filename):
+        with open(filename) as file:
+            program = file.readlines()
+    return program
+
+def batch_input(simpletron: Simpletron) -> None:
+    """
+    Collect all input values at once from the user and store them in memory.
+    """
+    print("\nInput all values required by your program. Enter 'done' when finished:")
+    while True:
+        try:
+            value = input("Enter value or 'done' to finish: ")
+            if value.lower() == "done":
+                break
+            # Convert the value into integer and store it in memory
+            simpletron.store_data(int(value))
+        except ValueError:
+            print("Invalid input, please enter a valid integer.")
+
 def main() -> None:
     memory_size = 100
     simpletron = Simpletron(memory_size)
@@ -153,11 +139,14 @@ def main() -> None:
             command = instruction[1]
             simpletron.store_data(int(command))
 
-        simpletron.execute()
-        simpletron.dump()
+        # Collect all user inputs in one go before starting execution
+        batch_input(simpletron)
+
+        # Now execute the program with the collected inputs
+        simpletron.execute()  
 
         # Ask if the user wants to run another program
-        continue_choice = input("\n\nDo you want to run another program? (yes/no): ").strip().lower()
+        continue_choice = input("\nDo you want to run another program? (yes/no): ").strip().lower()
         if continue_choice != 'yes':
             print("\nExiting the Simpletron.")
             break  # Exit the loop
