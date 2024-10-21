@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+	<table class="w3-table-all">
+		<th>IDNO</th>
+		<th>LASTNAME</th>
+		<th>FIRSTNAME</th>
+		<th>COURSE</th>
+		<th>LEVEL</th>
+		{% for student in slist %}
+		<tr>
+			<td>{{ student['idno'] }}</td>
+			<td>{{ student['lastname'] }}</td>
+			<td>{{ student['firstname'] }}</td>
+			<td>{{ student['course'] }}</td>
+			<td>{{ student['level'] }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+{% endblock %}
