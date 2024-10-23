@@ -12,7 +12,7 @@ students:list = [
 
 @app.route("/")
 def index()->None:
-    return render_template("index.html",slist=students,pagetitle="student list")
+    return render_template("index.html",slist=students,pagetitle="Student List")
     
 if __name__=="__main__":
     app.run(debug=True)
