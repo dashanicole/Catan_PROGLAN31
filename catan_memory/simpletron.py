@@ -10,50 +10,72 @@ class Simpletron:
         self.memory = ["+0000"] * memory_size
         self.isRunning = True  # False if 43 (Halt)
         self.placer = 0  # To track where to store the next instruction
+        # Mapping of SML commands to operation codes
+        self.opcode_map = {
+            'Read': 10,
+            'Write': 11,
+            'LoadM': 20,
+            'Store': 21,
+            'AddM': 30,
+            'SubM': 31,
+            'DivM': 32,
+            'MulM': 33,
+            'Branch': 40,
+            'BranchZ': 41,
+            'BranchN': 42,
+            'Halt': 43
+        }
 
-    def store_data(self, word: int) -> None:
-        format_word = self.format_number(word)
-        self.memory[self.placer] = format_word
+    def store_data(self, word: str) -> None:
+        self.memory[self.placer] = word
         self.placer += 1  # Increment the placer for every word inserted
-
-        if format_word == "+4300":
-            self.isRunning = False
 
     def execute(self) -> None:
         self.isRunning = True
         while self.isRunning:
             word = self.memory[self.programCounter]
             self.instructionRegister = word
-            format_word = word.split("+")[1]
-            self.operationCode = int(format_word) // 100
-            self.operand = int(format_word) % 100
             
-            # Execute operations based on the operation code
+            # Extract the operation code
+            if word in self.opcode_map:
+                self.operationCode = self.opcode_map[word]
+            else:
+                print(f"Error: Invalid instruction '{word}' at memory location {self.programCounter}")
+                self.isRunning = False
+                continue
+            
+            # Handle operations
+            print(f"\nExecuting {word} (Opcode: {self.operationCode})...")
+        
             if self.operationCode == 10:  # Read input
-                try:
-                    # No individual input needed here, as batch inputs were collected
-                    print(f"Reading value from memory location {self.operand} -> {self.memory[self.operand]}")
-                except Exception as err:
-                    print(f"Invalid Input: {err}")
-                    exit()
+                self.operand = int(input("Enter the memory location to store input: "))
+                value = int(input("Enter an integer: "))
+                self.memory[self.operand] = self.format_number(value)
             elif self.operationCode == 11:  # Output
-                print(self.memory[self.operand])
+                self.operand = int(input("Enter the memory location to read output from: "))
+                print(f"Output (Memory[{self.operand}]): {self.memory[self.operand]}")
             elif self.operationCode == 20:  # Load into accumulator
-                self.accumulator = int(self.memory[self.operand])  
+                self.operand = int(input("Enter the memory location to load from: "))
+                self.accumulator = int(self.memory[self.operand])
             elif self.operationCode == 21:  # Store from accumulator
+                self.operand = int(input("Enter the memory location to store to: "))
                 self.memory[self.operand] = self.format_number(self.accumulator)
             elif self.operationCode == 30:  # Add
-                self.accumulator += int(self.memory[self.operand])  
+                self.operand = int(input("Enter the memory location to add from: "))
+                self.accumulator += int(self.memory[self.operand])
             elif self.operationCode == 31:  # Subtract
-                self.accumulator -= int(self.memory[self.operand])  
+                self.operand = int(input("Enter the memory location to subtract from: "))
+                self.accumulator -= int(self.memory[self.operand])
             elif self.operationCode == 32:  # Divide
+                self.operand = int(input("Enter the memory location to divide by: "))
                 if int(self.memory[self.operand]) == 0:
                     print("Error: Division by zero")
                     self.isRunning = False
                 else:
-                    self.accumulator //= int(self.memory[self.operand])  
+                    self.accumulator //= int(self.memory[self.operand])
             elif self.operationCode == 33:  # Multiply
-                self.accumulator *= int(self.memory[self.operand])  
+                self.operand = int(input("Enter the memory location to multiply by: "))
+                self.accumulator *= int(self.memory[self.operand])
             elif self.operationCode == 40:  # Branch to address
                 self.programCounter = self.operand
                 continue  # Skip the programCounter increment for branches
@@ -66,14 +88,13 @@ class Simpletron:
                     self.programCounter = self.operand
                     continue  # Skip the programCounter increment for branches
             elif self.operationCode == 43:  # Halt
-                print("\nSimpletron is halting...\n")
                 self.isRunning = False
             else:  # If there's no valid opcode
                 print(f"Error: Invalid opcode {self.operationCode}")
-                self.running = False
+                self.isRunning = False
 
             self.dump()  # Display memory after each operation
-            input("\n\nPress any key to continue...")  # Wait for user input before next operation
+            input("\n\nPress Enter to continue...")  # Wait for user input before next operation
 
             self.programCounter += 1  # Increment the program counter
 
@@ -87,7 +108,7 @@ class Simpletron:
         print(f"Instruction Register: {self.instructionRegister}")
         print(f"Operation Code:       {self.operationCode}")
         print(f"Operand:              {self.operand}")
-        print("Memory: ")  
+        print("\nMemory: ")  
 
         # Print memory
         for x in range(-1, 10):
@@ -103,23 +124,12 @@ def loader(filename: str) -> list:
     program: list = []
     if path.exists(filename):
         with open(filename) as file:
-            program = file.readlines()
+            for line in file:
+                # Strip comments and whitespace from each line
+                instruction = line.split('#')[0].strip()
+                if instruction:  # Only add non-empty instructions
+                    program.append(instruction)
     return program
-
-def batch_input(simpletron: Simpletron) -> None:
-    """
-    Collect all input values at once from the user and store them in memory.
-    """
-    print("\nInput all values required by your program. Enter 'done' when finished:")
-    while True:
-        try:
-            value = input("Enter value or 'done' to finish: ")
-            if value.lower() == "done":
-                break
-            # Convert the value into integer and store it in memory
-            simpletron.store_data(int(value))
-        except ValueError:
-            print("Invalid input, please enter a valid integer.")
 
 def main() -> None:
     memory_size = 100
@@ -129,26 +139,31 @@ def main() -> None:
         filename: str = input("\nEnter the filename of the program to run (or 'exit' to quit): ")
         
         if filename.lower() == 'exit':
-            print("\nExiting the Simpletron.")
+            print("\nExiting the Simpletron...")
             break  # Exit the loop
 
         program: list = loader(filename)
 
         for item in program:
-            instruction: list = item.strip().split("\t")
-            command = instruction[1]
-            simpletron.store_data(int(command))
+            # Remove any trailing whitespace or comments
+            command = item.strip()
+            if command:  # Ensure command is not empty
+                simpletron.store_data(command)  # Store command as string
 
-        # Collect all user inputs in one go before starting execution
-        batch_input(simpletron)
+        # Show the memory state after loading the instructions
+        print("\nMemory state after loading the program:")
+        simpletron.dump()  # Display the current memory state
+        
+        # Prompt to continue
+        input("\n\nPress Enter to continue...")  # Wait for user input before executing
 
-        # Now execute the program with the collected inputs
+        # Execute the program with the loaded instructions
         simpletron.execute()  
 
         # Ask if the user wants to run another program
         continue_choice = input("\nDo you want to run another program? (yes/no): ").strip().lower()
         if continue_choice != 'yes':
-            print("\nExiting the Simpletron.")
+            print("\nExiting the Simpletron...")
             break  # Exit the loop
 
 if __name__ == "__main__":
