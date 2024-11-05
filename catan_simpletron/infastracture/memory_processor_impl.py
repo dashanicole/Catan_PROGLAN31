@@ -33,10 +33,13 @@ class ProcessorRepositoryImpl(ProcessorRepository):
             self.operation_map[self.processor.operation_code](instruction.operand)  
             
         else: 
-            raise ValueError(f"Unknown opcode: {self.processor.operation_code}")
+            raise ValueError(f"Unknown opcode: {self.processor.operation_code}...")
         
         return False  
     
     def dump(self) -> str | None:
         return self.processor.dump()
- 
+        
+    
+
+        

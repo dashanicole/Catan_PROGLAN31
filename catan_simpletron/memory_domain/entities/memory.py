@@ -16,7 +16,7 @@ class Memory:
     def store(cls, address: Address, data: Union[Instruction, DataValue]) -> bool:
         in_memory_address = address.get_memory_address
         if in_memory_address not in cls.memory:
-            raise MemoryError.invalid_address(f"Invalid address in memory: {address}")
+            raise MemoryError.invalid_address(f"Invalid address in memory: {address}...")
 
         location = address.get_col_location
         if location >= len(cls.memory[in_memory_address]):
@@ -27,7 +27,7 @@ class Memory:
         elif isinstance(data, DataValue):
             cls.memory[in_memory_address][location] = DataValue(data)
         else:
-            raise MemoryError.invalid_data("Data must be Instruction or DataValue")
+            raise MemoryError.invalid_data("Data must be Instruction or DataValue...")
 
         return True
     
@@ -35,7 +35,7 @@ class Memory:
     def read(cls, address: Address) -> DataValue: 
         in_memory_address = address.get_memory_address
         if in_memory_address not in cls.memory:
-            raise MemoryError.invalid_address('Address is not present in the memory')
+            raise MemoryError.invalid_address('Address is not present in the memory...')
 
         location = address.get_col_location
         if location >= len(cls.memory[in_memory_address]):

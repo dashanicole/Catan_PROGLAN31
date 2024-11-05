@@ -11,7 +11,7 @@ class DataValue(CoreEntity):
         self.value = value
 
         if not self.is_valid(self.value):
-            raise MemoryError.invalid_data('Invalid data')
+            raise MemoryError.invalid_data('Invalid data...')
     
     def is_valid(self, value: str) -> bool:
         return isinstance(value, str) and len(value) > 0

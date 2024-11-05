@@ -11,7 +11,7 @@ class Address(CoreEntity):
         super().__init__(value) 
         self.value = value;
         if not self.is_valid(value):
-            raise MemoryError.invalid_address("Invalid address")
+            raise MemoryError.invalid_address("Invalid address...")
     
     def __eq__(self, other) -> bool:
         if isinstance(other, Address):

@@ -18,7 +18,7 @@ def main():
             success = controller.store(raw_address, raw_data)
             raw_address = input("\nEnter the address to store data: ")
             if success:
-                print("Data stored successfully.")
+                print("Data stored successfully...")
             # else:
             #     print("Failed to store data.")
 
@@ -26,7 +26,7 @@ def main():
             raw_address = input("\nEnter the address to read data from: ")
             data_value = controller.read(raw_address)
             if data_value:
-                print(f"Data read successfully: {data_value}")
+                print(f"Data read successfully: {data_value}...")
             # else:
             #     print("No data found at the specified address.")
 
@@ -35,8 +35,8 @@ def main():
             print(controller.display())
 
         elif choice == '4':
-            print("Exiting CLI.")
+            print("Exiting CLI...")
             sys.exit(0)
 
         else:
-            print("Invalid choice. Please select a valid option.")
+            print("Invalid choice. Please select a valid option...")

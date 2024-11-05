@@ -25,7 +25,7 @@ class SimpletronDriver:
             # Execute the loading of the SML file
             cls._loader.execute(sml_file_path, cls._memory_controller)
         except Exception as e:
-            print(f"Error loading instructions from {sml_file_path}: {e}")
+            print(f"Error loading instructions from {sml_file_path}: {e}...")
             return
 
         print_welcome();

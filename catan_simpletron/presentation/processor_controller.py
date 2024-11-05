@@ -4,9 +4,6 @@ from memory_domain.operations.operation_mapping import operation_mapping
 from .cli_utils import wrap_in_border
 
 class ProcessorController:  
-    dump = ["ReadA", "LoadI", "Store", "LoadM", "JZ", "HALT", "Store", "MulM", "Store", "LoadM", "SubI", "Store", "JMP", "Write", "VariableA", "VariableB"]
-    counter = 0;
-
     def __init__(self, processor_repository: ProcessorRepository, memory_repository: MemoryRepository):
         self.processor_repository = processor_repository
         self.memory_repository = memory_repository
@@ -48,10 +45,7 @@ class ProcessorController:
             if not instruction:
                 break;
 
-            # print(f"\nExecuting {str(instruction)}")
-
-            print(f"\nExecuting {self.dump[self.counter]}")
-            self.counter += 1;
+            print(f"\nExecuting {str(instruction)}...")
 
             should_halt = self.processor_repository.execute(instruction)  
 

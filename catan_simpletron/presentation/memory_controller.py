@@ -34,7 +34,7 @@ class MemoryController:
             return store_use_case.execute(store_dto)
         
         except MemoryError as e:
-            print(f"Memory Error: {str(e)}")
+            print(f"Memory Error: {str(e)}...")
             return False
 
     """
